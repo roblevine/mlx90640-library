@@ -10,9 +10,13 @@ examples/interp
 examples/video
 examples/sdlscale
 examples/rawrgb
+examples/rawdata
 examples/hotspot
 bcm2835-*
 *.egg-info
 *.py[cod]
 python/library/build
 python/library/dist
+.idea
+CMakeLists.txt
+cmake*
