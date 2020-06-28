@@ -86,91 +86,14 @@
 // to account for this.
 #define OFFSET_MICROS 850
 
-#define PIXEL_SIZE_BYTES 3
-#define IMAGE_SIZE 768*PIXEL_SIZE_BYTES
-
-void put_pixel_false_colour(char *image, int x, int y, double v) {
-    // Heatmap code borrowed from: http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
-    const int NUM_COLORS = 7;
-    static float color[NUM_COLORS][3] = { {0,0,0}, {0,0,1}, {0,1,0}, {1,1,0}, {1,0,0}, {1,0,1}, {1,1,1} };
-    int idx1, idx2;
-    float fractBetween = 0;
-    float vmin = 5.0;
-    float vmax = 50.0;
-    float vrange = vmax-vmin;
-    int offset = (y*32+x) * PIXEL_SIZE_BYTES;
-
-    v -= vmin;
-    v /= vrange;
-    if(v <= 0) {idx1=idx2=0;}
-    else if(v >= 1) {idx1=idx2=NUM_COLORS-1;}
-    else
-    {
-        v *= (NUM_COLORS-1);
-        idx1 = floor(v);
-        idx2 = idx1+1;
-        fractBetween = v - float(idx1);
-    }
-
-    int ir, ig, ib;
-
-
-    ir = (int)((((color[idx2][0] - color[idx1][0]) * fractBetween) + color[idx1][0]) * 255.0);
-    ig = (int)((((color[idx2][1] - color[idx1][1]) * fractBetween) + color[idx1][1]) * 255.0);
-    ib = (int)((((color[idx2][2] - color[idx1][2]) * fractBetween) + color[idx1][2]) * 255.0);
-
-    //put calculated RGB values into image map
-    image[offset] = ir;
-    image[offset + 1] = ig;
-    image[offset + 2] = ib;
-
-
-}
-
-void put_pixel_raw_temp(char *image, int x, int y, double v) {
-    // Heatmap code borrowed from: http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
-    const int NUM_COLORS = 7;
-    static float color[NUM_COLORS][3] = { {0,0,0}, {0,0,1}, {0,1,0}, {1,1,0}, {1,0,0}, {1,0,1}, {1,1,1} };
-    int idx1, idx2;
-    float fractBetween = 0;
-    float vmin = 5.0;
-    float vmax = 50.0;
-    float vrange = vmax-vmin;
-    int offset = (y*32+x) * PIXEL_SIZE_BYTES;
-
-    v -= vmin;
-    v /= vrange;
-    if(v <= 0) {idx1=idx2=0;}
-    else if(v >= 1) {idx1=idx2=NUM_COLORS-1;}
-    else
-    {
-        v *= (NUM_COLORS-1);
-        idx1 = floor(v);
-        idx2 = idx1+1;
-        fractBetween = v - float(idx1);
-    }
-
-    int ir, ig, ib;
-
-
-    ir = (int)((((color[idx2][0] - color[idx1][0]) * fractBetween) + color[idx1][0]) * 255.0);
-    ig = (int)((((color[idx2][1] - color[idx1][1]) * fractBetween) + color[idx1][1]) * 255.0);
-    ib = (int)((((color[idx2][2] - color[idx1][2]) * fractBetween) + color[idx1][2]) * 255.0);
-
-    //put calculated RGB values into image map
-    image[offset] = ir;
-    image[offset + 1] = ig;
-    image[offset + 2] = ib;
-
-
-}
+#define IMAGE_SIZE 768
 
 int main(int argc, char *argv[]){
 
     static uint16_t eeMLX90640[832];
     float emissivity = 0.8;
     uint16_t frame[834];
-    static char image[IMAGE_SIZE];
+    static int image[IMAGE_SIZE];
     static float mlx90640To[768];
     float eTa;
     static uint16_t data[768*sizeof(float)];
@@ -236,14 +159,17 @@ int main(int argc, char *argv[]){
         for(int y = 0; y < 24; y++){
             for(int x = 0; x < 32; x++){
                 float val = mlx90640To[32 * (23-y) + x];
-              //  put_pixel_rawtemp(image, x, y, val);
-              std::cout << "\n" << val;
+                int centiCelsius = static_cast<int>(val*100);
+                int offset = (y*32+x);
+//              std::cout << "\n" << offset << ": " << centiCelsius;
+                image[offset] = centiCelsius;
             }
         }
 
-        //wite RGB image to stdout
-       // fwrite(&image, 1, IMAGE_SIZE, stdout);
-       // fflush(stdout); // push to stdout now
+        //wite image to stdout
+        fwrite(&image, 1, IMAGE_SIZE, stdout);
+        std::cout << "\0";
+        fflush(stdout); // push to stdout now
 
         auto end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -251,4 +177,7 @@ int main(int argc, char *argv[]){
     }
 
     return 0;
+
+
 }
+
