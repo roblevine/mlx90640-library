@@ -7,7 +7,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "headers/MLX90640_API.h"
+#include "MLX90640_API.h"
 
 /*
  * rawrgb

@@ -4,7 +4,7 @@ I2C_LIBS =
 SRC_DIR = examples/src/
 BUILD_DIR = examples/
 LIB_DIR = $(SRC_DIR)lib/
-
+HEADERS = headers
 examples = test rawrgb step fbuf interp video hotspot sdlscale rawdata
 examples_objects = $(addsuffix .o,$(addprefix $(SRC_DIR), $(examples)))
 examples_output = $(addprefix $(BUILD_DIR), $(examples))
@@ -33,7 +33,7 @@ functions/MLX90640_API.o functions/MLX90640_RPI_I2C_Driver.o functions/MLX90640_
 
 $(examples_objects) : CXXFLAGS+=-std=c++11
 
-$(examples_output) : CXXFLAGS+=-I. -std=c++11
+$(examples_output) : CXXFLAGS+=-I$(HEADERS) -std=c++11
 
 examples/src/lib/interpolate.o : CC=$(CXX) -std=c++11
 

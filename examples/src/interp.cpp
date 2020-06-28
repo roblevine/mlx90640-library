@@ -5,7 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <math.h>
-#include "headers/MLX90640_API.h"
+#include "MLX90640_API.h"
 #include "lib/fb.h"
 #include "lib/interpolate.h"
 
